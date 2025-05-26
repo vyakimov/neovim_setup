@@ -3,4 +3,3 @@ require("config.lazy")
 require("core.keymaps")
 local lspconfig = require("lspconfig")
 lspconfig.pyright.setup({})
-vim.opt.clipboard = "unnamedplus"

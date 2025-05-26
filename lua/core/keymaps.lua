@@ -36,6 +36,9 @@ map("n", "<M-Del>", "db", { desc = "Delete word backward" }) -- Some terminals s
 map("i", "<M-BS>", "<C-W>", { desc = "Delete word backward" })
 map("i", "<M-Del>", "<C-W>", { desc = "Delete word backward" })
 
+map({ "n", "v" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
+map({ "n", "v" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
+
 -- You might also want to map for other Alt/Option combinations if needed
 -- For example, some systems use <M-Left> / <M-Right> for word movement
 -- These are typically if your terminal sends xterm-style Alt+Arrow sequences like "\e[1;3D"
