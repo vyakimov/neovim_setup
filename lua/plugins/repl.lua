@@ -5,7 +5,8 @@ return {
     -- No specific key for lazy loading here, as NotebookNavigator might trigger it.
     -- You can add `event = "VeryLazy"` if you prefer to delay loading until explicitly used.
     config = function()
-      require("iron.core").setup({
+      local iron = require("iron.core")
+      iron.setup({
         config = {
           -- Preferred REPL for Python.
           -- Ensure 'ipython' is in your PATH or provide the full path.
@@ -41,6 +42,53 @@ return {
           italic = true,
         },
       })
+      vim.keymap.set("n", "<leader>fr", function()
+        local current_buf = vim.api.nvim_get_current_buf()
+        local buf_name = vim.api.nvim_buf_get_name(current_buf)
+        local current_ft = vim.bo.filetype
+
+        -- Check if we're currently in a REPL buffer
+        if string.match(buf_name, "iron://") or current_ft == "iron" then
+          -- We're in REPL, switch to previous window
+          vim.cmd("wincmd p")
+        else
+          -- We're in editor, try to focus or create REPL
+          local repl_exists = false
+
+          -- Check if there's an active REPL window
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local win_buf = vim.api.nvim_win_get_buf(win)
+            local win_buf_name = vim.api.nvim_buf_get_name(win_buf)
+            local win_ft = vim.bo[win_buf].filetype
+
+            if string.match(win_buf_name, "iron://") or win_ft == "iron" then
+              -- Found REPL window, focus it
+              vim.api.nvim_set_current_win(win)
+              repl_exists = true
+              break
+            end
+          end
+
+          if not repl_exists then
+            -- No REPL found, create one
+            iron.repl_for(current_ft)
+            -- After creating, find and focus the new REPL window
+            vim.defer_fn(function()
+              for _, win in ipairs(vim.api.nvim_list_wins()) do
+                local win_buf = vim.api.nvim_win_get_buf(win)
+                local win_buf_name = vim.api.nvim_buf_get_name(win_buf)
+                local win_ft = vim.bo[win_buf].filetype
+
+                if string.match(win_buf_name, "iron://") or win_ft == "iron" then
+                  vim.api.nvim_set_current_win(win)
+                  break
+                end
+              end
+            end, 100) -- Small delay to ensure REPL is created
+          end
+        end
+      end, { desc = "Iron: Toggle REPL Focus" })
+      vim.keymap.set("t", "jk", "<C-\\><C-n>", { desc = "Exit terminal insert mode with jk" })
     end,
   },
 
@@ -117,14 +165,14 @@ return {
         desc = "NN: Add Cell Above",
       },
       {
-        "]c",
+        "<C-j>",
         function()
           require("notebook-navigator").move_cell("d")
         end,
         desc = "NN: Next Cell Start",
       },
       {
-        "[c",
+        "<C-k>",
         function()
           require("notebook-navigator").move_cell("u")
         end,
