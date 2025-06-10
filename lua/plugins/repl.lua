@@ -6,6 +6,7 @@ return {
     -- You can add `event = "VeryLazy"` if you prefer to delay loading until explicitly used.
     config = function()
       local iron = require("iron.core")
+      local iron_fts_common = require("iron.fts.common")
       iron.setup({
         config = {
           -- Preferred REPL for Python.
@@ -13,7 +14,11 @@ return {
           repl_definition = {
             python = {
               command = { "ipython" },
-              format = require("iron.fts.common").bracketed_paste,
+              format = iron_fts_common.bracketed_paste,
+            },
+            r = {
+              command = { "radian" }, -- { "R", "--quiet", "--no-save", "--no-restore" }, -- Or just {"R"} or {"radian"} if you use radian
+              format = iron_fts_common.bracketed_paste, -- Use bracketed paste for R
             },
           },
           preferred = "ipython",
