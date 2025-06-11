@@ -1,8 +1,9 @@
 return {
   "CopilotC-Nvim/CopilotChat.nvim",
   opts = {
-    -- your custom options here
     debug = false,
+    --    model = "copilot:gpt-4",
+    model = "gpt-4",
     window = {
       layout = "float", -- options: float | split | vertical
       border = "rounded",
@@ -12,14 +13,15 @@ return {
     prompts = {
       Explain = "Please explain this code",
       Review = "Please review this code",
-      -- Add more custom commands here
     },
+    selection = function(source)
+      local select = require("CopilotChat.select")
+      -- Prioritize visual selection, fallback to buffer if no visual selection
+      return select.visual(source) or select.buffer(source)
+    end,
   },
   dependencies = {
-    "zbirenbaum/copilot.lua", -- make sure Copilot itself is installed
+    "zbirenbaum/copilot.lua",
   },
   cmd = { "CopilotChat", "CopilotChatToggle" },
-  keys = {
-    { "<leader>cd", "<cmd>CopilotChatToggle<cr>", desc = "Toggle Copilot Chat" },
-  },
 }

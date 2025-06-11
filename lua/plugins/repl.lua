@@ -135,27 +135,6 @@ return {
         desc = "NN: Run Cell & Move Next",
       },
       {
-        "<leader>ca",
-        function()
-          require("notebook-navigator").run_all_cells()
-        end,
-        desc = "NN: Run All Cells",
-      },
-      {
-        "<leader>cb",
-        function()
-          require("notebook-navigator").run_cells_below()
-        end,
-        desc = "NN: Run Cells Below",
-      },
-      {
-        "<leader>cd",
-        function()
-          require("notebook-navigator").delete_cell()
-        end,
-        desc = "NN: Delete Cell",
-      },
-      {
         "<leader>c]",
         function()
           require("notebook-navigator").add_cell_below()
@@ -168,20 +147,6 @@ return {
           require("notebook-navigator").add_cell_above()
         end,
         desc = "NN: Add Cell Above",
-      },
-      {
-        "<C-j>",
-        function()
-          require("notebook-navigator").move_cell("d")
-        end,
-        desc = "NN: Next Cell Start",
-      },
-      {
-        "<C-k>",
-        function()
-          require("notebook-navigator").move_cell("u")
-        end,
-        desc = "NN: Previous Cell Start",
       },
       -- You can add more keymaps for other NotebookNavigator functions like swap_cell, merge_cell, etc.
     },
