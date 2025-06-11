@@ -121,7 +121,7 @@ return {
     -- It's good practice to define them within the plugin spec or your global keymap file.
     keys = {
       {
-        "<leader>cc",
+        "<leader>cx",
         function()
           require("notebook-navigator").run_cell()
         end,
