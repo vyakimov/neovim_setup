@@ -126,7 +126,7 @@ return {
         },
         chat = {
           window = {
-            layout = "float", -- or "horizontal", "float"
+            layout = "horizontal", -- or "horizontal", "float"
             width = 0.45,
             height = 0.35,
             relative = "editor",

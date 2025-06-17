@@ -3,7 +3,7 @@ return {
   opts = {
     debug = false,
     --    model = "copilot:gpt-4",
-    model = "gpt-4",
+    model = "gpt-4.1",
     window = {
       layout = "float", -- options: float | split | vertical
       border = "rounded",
@@ -22,6 +22,8 @@ return {
   },
   dependencies = {
     "zbirenbaum/copilot.lua",
+    "nvim-lua/plenary.nvim",
   },
+  build = "make tiktoken",
   cmd = { "CopilotChat", "CopilotChatToggle" },
 }
