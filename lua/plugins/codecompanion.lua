@@ -79,6 +79,9 @@ return {
             },
           })
         end,
+        tools = {
+          tavily_search = true,
+        },
       },
 
       -- Data Science specific prompts
@@ -126,14 +129,14 @@ return {
         },
         chat = {
           window = {
-            layout = "horizontal", -- or "horizontal", "float"
-            width = 0.45,
-            height = 0.35,
+            layout = "float", -- or "horizontal", "float"
+            width = 0.55,
+            height = 0.45,
             relative = "editor",
             border = "single",
             title = "CodeCompanion",
           },
-          show_settings = true,
+          show_settings = false,
         },
       },
 
