@@ -12,13 +12,70 @@ return {
     require("codecompanion").setup({
       strategies = {
         chat = {
-          adapter = "openai", -- or "openai", "ollama", "copilot"
+          adapter = "anthropic", -- or "openai", "ollama", "copilot"
         },
         inline = {
           adapter = "openai",
         },
         agent = {
           adapter = "openai",
+        },
+      },
+      prompt_library = {
+        ["Data Science Expert"] = {
+          strategy = "chat",
+          description = "Explain the selected code in detail",
+          opts = {
+            modes = { "n", "v" },
+            auto_submit = false,
+          },
+          prompts = {
+            {
+              role = "system",
+              content = [[You are an advanced AI coding assistant specializing in Python and data science. Your role is to help users with coding tasks, provide explanations, and offer best practices in software development, particularly in the context of data science projects.
+
+You will be given two inputs:
+A user query, which is the user's question or request for assistance.
+Code context, which is the relevant code context provided by the user, if any. It may include existing code, error messages, or other pertinent information.
+
+Guidelines for analyzing and generating code:
+- Always prioritize readability, efficiency, and adherence to Python best practices (PEP 8).
+- When suggesting libraries or frameworks, prefer widely-used, well-maintained options in the data science ecosystem (e.g., NumPy, Pandas, Scikit-learn, TensorFlow, PyTorch).
+- Consider scalability and performance implications, especially for data-intensive tasks.
+- Implement error handling and input validation where appropriate.
+- Write modular, reusable code when possible.
+
+When providing explanations:
+- Break down complex concepts into simpler terms.
+- Use analogies or real-world examples to illustrate ideas when helpful.
+- Explain the rationale behind your code choices or recommendations.
+- Provide links to relevant documentation or resources for further reading.
+
+For documentation:
+- Include clear, concise comments in the code.
+- Provide docstrings for functions and classes, following the NumPy docstring format.
+- Explain any non-obvious algorithms or data structures used.
+
+When handling errors or edge cases:
+- If the user's query involves an error, explain the likely cause and suggest solutions.
+- Consider and address potential edge cases in your code suggestions.
+- Mention any assumptions you're making about the data or use case.
+
+Present your response in the following format:
+1. A brief restatement of the user's query or problem.
+2. Your code solution or explanation, enclosed in <code> tags if it's code.
+3. A detailed explanation of your solution or answer, including rationale for your choices.
+4. Any additional tips, best practices, or considerations relevant to the user's query.
+5. Suggestions for further improvements or alternative approaches, if applicable.
+
+Enclose your entire response in <answer> tags.]],
+            },
+            {
+              role = "user",
+              content = "",
+              opts = { contains_code = true }, -- Indicate that the prompt may contain code
+            },
+          },
         },
       },
       adapters = {
@@ -38,7 +95,7 @@ return {
                 },
               },
               max_tokens = {
-                default = 4096,
+                default = 32000,
               },
               temperature = {
                 default = 0.1,
@@ -64,60 +121,8 @@ return {
             },
           })
         end,
-        ollama = function()
-          return require("codecompanion.adapters").extend("ollama", {
-            schema = {
-              model = {
-                default = "codellama:34b",
-                choices = {
-                  "codellama:34b",
-                  "deepseek-coder:33b",
-                  "llama3.1:70b",
-                  "mistral:7b",
-                },
-              },
-            },
-          })
-        end,
         tools = {
           tavily_search = true,
-        },
-      },
-
-      -- Data Science specific prompts
-      prompts = {
-        ["Data Analysis"] = {
-          strategy = "chat",
-          description = "Analyze data and provide insights",
-          opts = {
-            index = 1,
-            default_prompt = true,
-            mapping = "<leader>cda",
-            modes = { "v" },
-            slash_cmd = "analyze",
-            auto_submit = true,
-          },
-          prompts = {
-            {
-              role = "system",
-              content = function()
-                return "You are an expert data scientist. Analyze the provided code/data and:\n"
-                  .. "1. Explain what the code does\n"
-                  .. "2. Identify potential issues or improvements\n"
-                  .. "3. Suggest optimizations for performance\n"
-                  .. "4. Recommend best practices\n"
-                  .. "5. Point out any statistical or methodological concerns\n\n"
-                  .. "Focus on pandas, numpy, matplotlib, seaborn, and scikit-learn best practices."
-              end,
-            },
-            {
-              role = "user",
-              content = function(context)
-                local text = require("codecompanion.helpers.actions").get_code(context.start_line, context.end_line)
-                return "Please analyze this data science code:\n\n```python\n" .. text .. "\n```"
-              end,
-            },
-          },
         },
       },
 
@@ -126,6 +131,12 @@ return {
         action_palette = {
           width = 95,
           height = 10,
+          prompt = "Prompt ",
+          provider = "telescope",
+          opts = {
+            show_default_actions = false,
+            show_default_prompt_library = false,
+          },
         },
         chat = {
           window = {
