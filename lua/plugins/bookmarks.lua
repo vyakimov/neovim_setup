@@ -10,7 +10,6 @@ return {
       -- Uses SQLite for persistence
       -- Check their default-config.lua for all options
     })
-    require("telescope").load_extension("bookmarks")
   end,
   keys = {
     { "<leader>mm", "<cmd>BookmarksMark<cr>", desc = "Mark current line" },

@@ -50,6 +50,7 @@ map("n", "<leader>cc", sys .. "cc", { desc = "Change line → system" })
 map("n", "<leader>C", sys .. "C", { desc = "Change to EOL → system" })
 map("v", "<leader>c", sys .. "c", { desc = "Change selection → system" })
 
+vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
 -- ──────────────────────────────────────────────
 -- Yanky integration
 -- ──────────────────────────────────────────────
