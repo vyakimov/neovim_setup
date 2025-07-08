@@ -12,7 +12,7 @@ return {
     require("codecompanion").setup({
       strategies = {
         chat = {
-          adapter = "anthropic", -- or "openai", "ollama", "copilot"
+          adapter = "openai", -- or "openai", "ollama", "copilot"
         },
         inline = {
           adapter = "openai",
