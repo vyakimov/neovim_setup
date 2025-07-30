@@ -73,3 +73,5 @@ map({ "n", "v" }, "<leader>cq", "<cmd>CodeCompanionActions<cr>", { desc = "CodeC
 map("n", "<leader>cd", "<cmd>CodeCompanionChat Toggle<cr>", { desc = "Toggle CodeCompanion Chat" })
 map("v", "<leader>cd", "<cmd>CodeCompanionChat<cr>", { desc = "Send selection to Chat" })
 map({ "n", "v" }, "<leader>cD", "<cmd>CodeCompanionChat<cr>", { desc = "Open new CodeCompanion Chat" })
+
+map("n", "<leader>rr", "<cmd>e!<cr>", { desc = "Force reload current file" })
