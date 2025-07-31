@@ -7,24 +7,25 @@ return {
     "hrsh7th/nvim-cmp", -- Optional: for completion
     "nvim-telescope/telescope.nvim", -- Optional: for history
     "stevearc/dressing.nvim", -- Optional: for input dialogs
+    "MeanderingProgrammer/render-markdown.nvim", -- For better markdown rendering
   },
   config = function()
     require("codecompanion").setup({
       strategies = {
         chat = {
-          adapter = "openai", -- or "openai", "ollama", "copilot"
+          adapter = "anthropic", -- Use Claude models to mimic Claude Code
         },
         inline = {
-          adapter = "openai",
+          adapter = "anthropic",
         },
         agent = {
-          adapter = "openai",
+          adapter = "anthropic",
         },
       },
       prompt_library = {
-        ["Data Science Expert"] = {
+        ["Claude Code Assistant"] = {
           strategy = "chat",
-          description = "Explain the selected code in detail",
+          description = "Claude Code-style assistant for software engineering tasks",
           opts = {
             modes = { "n", "v" },
             auto_submit = false,
@@ -32,48 +33,81 @@ return {
           prompts = {
             {
               role = "system",
-              content = [[You are an advanced AI coding assistant specializing in Python and data science. Your role is to help users with coding tasks, provide explanations, and offer best practices in software development, particularly in the context of data science projects.
+              content = [[You are Claude Code, an AI coding assistant that helps with software engineering tasks. Your responses should be concise, direct, and to the point.
 
-You will be given two inputs:
-A user query, which is the user's question or request for assistance.
-Code context, which is the relevant code context provided by the user, if any. It may include existing code, error messages, or other pertinent information.
+Key behaviors:
+- Be concise with fewer than 4 lines unless asked for detail
+- Minimize output tokens while maintaining helpfulness and accuracy
+- Answer questions directly without unnecessary preamble or postamble
+- Focus on the specific query at hand
+- Use tools proactively when needed (file operations, searches, etc.)
+- Follow existing code conventions and patterns
+- Never assume libraries are available - check first
+- Always follow security best practices
 
-Guidelines for analyzing and generating code:
-- Always prioritize readability, efficiency, and adherence to Python best practices (PEP 8).
-- When suggesting libraries or frameworks, prefer widely-used, well-maintained options in the data science ecosystem (e.g., NumPy, Pandas, Scikit-learn, TensorFlow, PyTorch).
-- Consider scalability and performance implications, especially for data-intensive tasks.
-- Implement error handling and input validation where appropriate.
-- Write modular, reusable code when possible.
+When working with code:
+- Read files before editing to understand context
+- Prefer editing existing files over creating new ones
+- Use existing libraries and utilities in the codebase
+- Follow the project's code style and conventions
+- Make changes incrementally and verify they work
 
-When providing explanations:
-- Break down complex concepts into simpler terms.
-- Use analogies or real-world examples to illustrate ideas when helpful.
-- Explain the rationale behind your code choices or recommendations.
-- Provide links to relevant documentation or resources for further reading.
+For file operations:
+- Use absolute paths
+- Check directory structure before creating files
+- Understand the codebase architecture before making changes
 
-For documentation:
-- Include clear, concise comments in the code.
-- Provide docstrings for functions and classes, following the NumPy docstring format.
-- Explain any non-obvious algorithms or data structures used.
-
-When handling errors or edge cases:
-- If the user's query involves an error, explain the likely cause and suggest solutions.
-- Consider and address potential edge cases in your code suggestions.
-- Mention any assumptions you're making about the data or use case.
-
-Present your response in the following format:
-1. A brief restatement of the user's query or problem.
-2. Your code solution or explanation, enclosed in <code> tags if it's code.
-3. A detailed explanation of your solution or answer, including rationale for your choices.
-4. Any additional tips, best practices, or considerations relevant to the user's query.
-5. Suggestions for further improvements or alternative approaches, if applicable.
-
-Enclose your entire response in <answer> tags.]],
+Be helpful but concise. One word answers are best when appropriate.]],
             },
             {
               role = "user",
               content = "",
-              opts = { contains_code = true }, -- Indicate that the prompt may contain code
+              opts = { contains_code = true },
+            },
+          },
+        },
+        ["Code Review"] = {
+          strategy = "chat",
+          description = "Review code for best practices and improvements",
+          opts = {
+            modes = { "n", "v" },
+            auto_submit = false,
+          },
+          prompts = {
+            {
+              role = "system",
+              content = [[Review the provided code for:
+- Code quality and best practices
+- Security vulnerabilities
+- Performance improvements
+- Maintainability issues
+- Documentation needs
+
+Provide specific, actionable feedback.]],
+            },
+            {
+              role = "user",
+              content = "",
+              opts = { contains_code = true },
+            },
+          },
+        },
+        ["Explain Code"] = {
+          strategy = "chat", 
+          description = "Explain selected code in detail",
+          opts = {
+            modes = { "v" },
+            auto_submit = false, -- Changed to false for consistency
+          },
+          prompts = {
+            {
+              role = "system",
+              content = "Explain the selected code clearly and concisely, focusing on what it does and how it works.",
+            },
+            {
+              role = "user",
+              content = "",
+              opts = { contains_code = true },
             },
           },
         },
@@ -86,19 +120,18 @@ Enclose your entire response in <answer> tags.]],
             },
             schema = {
               model = {
-                default = "claude-opus-4-20250514",
+                default = "claude-3-5-sonnet-20241022", -- Use Sonnet as default for better performance
                 choices = {
-                  "claude-opus-4-20250514",
                   "claude-3-5-sonnet-20241022",
-                  "claude-3-5-haiku-20241022",
+                  "claude-3-5-haiku-20241022", 
                   "claude-3-opus-20240229",
                 },
               },
               max_tokens = {
-                default = 32000,
+                default = 8192, -- Reasonable default for code tasks
               },
               temperature = {
-                default = 0.1,
+                default = 0.1, -- Low temperature for consistent code generation
               },
             },
           })
@@ -123,40 +156,73 @@ Enclose your entire response in <answer> tags.]],
         end,
         tools = {
           tavily_search = true,
+          -- Add VectorCode integration
+          vectorcode = {
+            name = "vectorcode",
+            description = "Search and analyze code using semantic search",
+            opts = {
+              enabled = function()
+                return vim.fn.executable("vectorcode") == 1
+              end,
+            },
+          },
+          -- Add MCP Hub integration placeholder
+          mcp_hub = {
+            name = "mcp_hub", 
+            description = "Connect to MCP Hub for extended tool capabilities",
+            opts = {
+              enabled = function()
+                -- Check if MCP Hub is available
+                return vim.env.MCP_HUB_URL ~= nil
+              end,
+            },
+          },
         },
       },
 
-      -- Display options
+      -- Display options - Make it more like Claude Code
       display = {
         action_palette = {
-          width = 95,
-          height = 10,
-          prompt = "Prompt ",
+          width = 120, -- Wider for better visibility
+          height = 15,  -- Taller for more options
+          prompt = "Claude Code ",
           provider = "telescope",
           opts = {
-            show_default_actions = false,
-            show_default_prompt_library = false,
+            show_default_actions = true,
+            show_default_prompt_library = true,
           },
         },
         chat = {
           window = {
-            layout = "float", -- or "horizontal", "float"
-            width = 0.55,
-            height = 0.45,
-            relative = "editor",
-            border = "single",
-            title = "CodeCompanion",
+            layout = "horizontal", -- Better for code work
+            width = 0.6,
+            height = 0.6,
+            relative = "editor", 
+            border = "rounded", -- More modern look
+            title = "Claude Code Assistant",
           },
-          show_settings = false,
+          show_settings = true, -- Allow model switching
+          show_token_count = true, -- Monitor usage
+          welcome_message = "Hello! I'm your Claude Code assistant. How can I help you with your code today?",
+        },
+        diff = {
+          provider = "mini_diff", -- Better diff visualization
         },
       },
 
-      -- Logging for debugging
-      log_level = "ERROR", -- or "DEBUG" for troubleshooting
-
-      -- Send code context automatically
-      send_code = true,
+      -- Enhanced for Claude Code-like behavior
+      log_level = "INFO", -- More verbose for debugging
+      send_code = true, -- Always include code context
       use_default_actions = true,
+      
+      -- Disable auto-submit for review-first workflow like Claude Code
+      auto_submit = false,
+
+      -- Enable file operations like Claude Code
+      file_operations = {
+        enabled = true,
+        auto_save = false, -- Don't auto-save, let user review first
+      },
     })
   end,
 }
