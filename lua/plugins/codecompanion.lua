@@ -7,12 +7,35 @@ return {
     "hrsh7th/nvim-cmp", -- Optional: for completion
     "nvim-telescope/telescope.nvim", -- Optional: for history
     "stevearc/dressing.nvim", -- Optional: for input dialogs
+    "Davidyz/VectorCode",
   },
   config = function()
+    -- Ensure you have required vectorcode before setting it up in codecompanion
     require("codecompanion").setup({
+      extensions = {
+        vectorcode = {
+          opts = {
+            add_tool = true, -- Adds @vectorcode tool
+            add_slash_command = true, -- Adds /vectorcode command
+            tool_opts = {
+              max_num = 20, -- Max files to retrieve
+              default_num = 10, -- Default files to retrieve
+              include_stderr = false, -- Don't include stderr in output
+              use_lsp = true, -- Use LSP backend if available
+              no_duplicate = true, -- Exclude already retrieved files
+            },
+          },
+        },
+      },
       strategies = {
         chat = {
           adapter = "openai", -- or "openai", "ollama", "copilot"
+          opts = {
+            model_params = {
+              reasoning_effort = "medium", -- "low" | "medium" | "high" (adapter-specific)
+              verbosity = "average",
+            },
+          },
         },
         inline = {
           adapter = "openai",
@@ -110,12 +133,10 @@ Enclose your entire response in <answer> tags.]],
             },
             schema = {
               model = {
-                default = "gpt-4.1-mini",
+                default = "gpt-5-mini",
                 choices = {
-                  "o3",
-                  "o4-mini",
-                  "gpt-4.1",
-                  "gpt-4.1-mini",
+                  "gpt-5",
+                  "gpt-5-mini",
                 },
               },
             },
@@ -140,9 +161,9 @@ Enclose your entire response in <answer> tags.]],
         },
         chat = {
           window = {
-            layout = "float", -- or "horizontal", "float"
-            width = 0.55,
-            height = 0.45,
+            layout = "horizontal", -- changed from "float" to horizontal
+            width = 0.50,
+            height = 0.50,
             relative = "editor",
             border = "single",
             title = "CodeCompanion",
