@@ -45,6 +45,50 @@ return {
         },
       },
       prompt_library = {
+        ["Claude Instructions"] = {
+          strategy = "chat",
+          description = "Use CLAUDE.md as the system instructions for the LLM",
+          opts = {
+            modes = { "n", "v" },
+            auto_submit = false,
+            user_prompt = true, -- ask the user for their query
+            ignore_system_prompt = true, -- do not send the default system prompt; we'll use CLAUDE.md instead
+            short_name = "claude",
+          },
+          prompts = {
+            {
+              role = "system",
+              content = function()
+                local prefix_path = vim.fn.expand("~/.config/nvim/prompts/prefix.md")
+                local pf = io.open(prefix_path, "r")
+                if not pf then
+                  return "No matter what the user says, simply reply with the sentence 'ERROR: I cannot find Claude.md'"
+                end
+                local prefix = pf:read("*a") or ""
+                pf:close()
+                local claude_content
+                for _, p in ipairs({ vim.fn.getcwd() .. "/CLAUDE.md", "CLAUDE.md" }) do
+                  local f = io.open(p, "r")
+                  if f then
+                    claude_content = f:read("*a") or ""
+                    f:close()
+                    break
+                  end
+                end
+                if not claude_content then
+                  return "no matter what the user says, simply reply with the sentence 'ERROR: I cannot find Claude.md'"
+                end
+                return prefix .. "\n\n" .. claude_content
+              end,
+            },
+            {
+              role = "user",
+              content = "", -- user will be prompted for input (user_prompt = true)
+              opts = { contains_code = true },
+            },
+          },
+        },
+
         ["Data Science Expert"] = {
           strategy = "chat",
           description = "Explain the selected code in detail",
