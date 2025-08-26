@@ -1,4 +1,5 @@
 -- ~/.config/nvim/lua/plugins/codecompanion.lua
+-- https://github.com/vanillacode314/stow-dotfiles/blob/main/dot-config/nvim/lua/plugins/codecompanion.lua
 return {
   "olimorris/codecompanion.nvim",
   dependencies = {
@@ -11,6 +12,7 @@ return {
     "echasnovski/mini.diff",
   },
   config = function()
+    require("plugins.codecompanion.spinner"):init()
     -- Ensure you have required vectorcode before setting it up in codecompanion
     require("codecompanion").setup({
       extensions = {
@@ -189,6 +191,7 @@ Enclose your entire response in <answer> tags.]],
         end,
         tools = {
           tavily_search = true,
+          opts = { wait_timeout = 3360000 },
         },
       },
 
