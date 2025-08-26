@@ -8,6 +8,7 @@ return {
     "nvim-telescope/telescope.nvim", -- Optional: for history
     "stevearc/dressing.nvim", -- Optional: for input dialogs
     "Davidyz/VectorCode",
+    "echasnovski/mini.diff",
   },
   config = function()
     -- Ensure you have required vectorcode before setting it up in codecompanion
@@ -59,7 +60,7 @@ return {
             {
               role = "system",
               content = function()
-                local prefix_path = vim.fn.expand("~/.config/nvim/prompts/prefix.md")
+                local prefix_path = vim.fn.expand("~/.config/nvim/prompts/claude_prefix.md")
                 local pf = io.open(prefix_path, "r")
                 if not pf then
                   return "No matter what the user says, simply reply with the sentence 'ERROR: I cannot find Claude.md'"
@@ -213,6 +214,13 @@ Enclose your entire response in <answer> tags.]],
             title = "CodeCompanion",
           },
           show_settings = false,
+        },
+        diff = {
+          enabled = true,
+          close_chat_at = 240,
+          layout = "vertical",
+          opts = { "internal", "filler", "closeoff", "algorithm:patience", "followwrap", "linematch:120" },
+          provider = "mini_diff", -- default|mini_diff
         },
       },
 
