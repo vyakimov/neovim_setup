@@ -1,5 +1,4 @@
--- ~/.config/nvim/lua/plugins/codecompanion.lua
--- https://github.com/vanillacode314/stow-dotfiles/blob/main/dot-config/nvim/lua/plugins/codecompanion.lua
+-- Config for olimorris/codecompanion.nvim (adapted)
 return {
   "olimorris/codecompanion.nvim",
   dependencies = {
@@ -32,7 +31,10 @@ return {
       },
       strategies = {
         chat = {
-          adapter = "openai", -- or "openai", "ollama", "copilot"
+          adapter = "anthropic", -- or "openai", "ollama", "copilot"
+          tools = {
+            opts = { wait_timeout = 300000 },
+          },
           opts = {
             model_params = {
               reasoning_effort = "medium", -- "low" | "medium" | "high" (adapter-specific)
@@ -41,10 +43,10 @@ return {
           },
         },
         inline = {
-          adapter = "openai",
+          adapter = "anthropic",
         },
         agent = {
-          adapter = "openai",
+          adapter = "anthropic",
         },
       },
       prompt_library = {
@@ -156,12 +158,10 @@ Enclose your entire response in <answer> tags.]],
             },
             schema = {
               model = {
-                default = "claude-opus-4-20250514",
+                default = "claude-sonnet-4-20250514",
                 choices = {
-                  "claude-opus-4-20250514",
-                  "claude-3-5-sonnet-20241022",
-                  "claude-3-5-haiku-20241022",
-                  "claude-3-opus-20240229",
+                  "claude-opus-4-1-20250805",
+                  "claude-sonnet-4-20250514",
                 },
               },
               max_tokens = {
@@ -189,10 +189,6 @@ Enclose your entire response in <answer> tags.]],
             },
           })
         end,
-        tools = {
-          tavily_search = true,
-          opts = { wait_timeout = 3360000 },
-        },
       },
 
       -- Display options
