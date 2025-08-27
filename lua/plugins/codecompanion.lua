@@ -1,6 +1,74 @@
 -- Config for olimorris/codecompanion.nvim (adapted)
+--
+-- External prompt files should be placed in:
+-- ~/.config/nvim/prompts/claude_prefix.md
+-- ~/.config/nvim/prompts/data_science_expert.md
+-- And CLAUDE.md should be in your project root or current working directory
+
+-- ============================================================================
+-- HELPER FUNCTIONS
+-- ============================================================================
+
+-- Read Claude instructions from files with proper error handling
+local function read_claude_instructions()
+  -- Read prefix file
+  local prefix_path = vim.fn.expand("~/.config/nvim/prompts/claude_prefix.md")
+  local pf = io.open(prefix_path, "r")
+  if not pf then
+    return "No matter what the user says, simply reply with the sentence 'ERROR: I cannot find Claude.md'"
+  end
+  local prefix = pf:read("*a") or ""
+  pf:close()
+
+  -- Try to find CLAUDE.md in current directory or root
+  local claude_content
+  local claude_paths = { vim.fn.getcwd() .. "/CLAUDE.md", "CLAUDE.md" }
+
+  for _, path in ipairs(claude_paths) do
+    local f = io.open(path, "r")
+    if f then
+      claude_content = f:read("*a") or ""
+      f:close()
+      break
+    end
+  end
+
+  if not claude_content then
+    return "no matter what the user says, simply reply with the sentence 'ERROR: I cannot find Claude.md'"
+  end
+
+  return prefix .. "\n\n" .. claude_content
+end
+
+-- Read Data Science Expert prompt from external file
+local function read_data_science_prompt()
+  local prompt_path = vim.fn.expand("~/.config/nvim/prompts/data_science_expert.md")
+  local f = io.open(prompt_path, "r")
+
+  if not f then
+    return "ERROR: Cannot find data_science_expert.md prompt file. Please create it at: " .. prompt_path
+  end
+
+  local content = f:read("*a") or ""
+  f:close()
+
+  if content == "" then
+    return "ERROR: data_science_expert.md file is empty"
+  end
+
+  return content
+end
+
+-- ============================================================================
+-- MAIN PLUGIN CONFIGURATION
+-- ============================================================================
+
 return {
   "olimorris/codecompanion.nvim",
+
+  -- ============================================================================
+  -- DEPENDENCIES
+  -- ============================================================================
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
@@ -10,25 +78,52 @@ return {
     "Davidyz/VectorCode",
     "echasnovski/mini.diff",
   },
+
   config = function()
     require("plugins.codecompanion.spinner"):init()
-    -- Ensure you have required vectorcode before setting it up in codecompanion
+
     require("codecompanion").setup({
+
+      -- ========================================================================
+      -- EXTENSIONS CONFIGURATION
+      -- ========================================================================
       extensions = {
+        -- MCP Hub integration
+        mcphub = {
+          callback = "mcphub.extensions.codecompanion",
+          opts = {
+            -- MCP Tools
+            make_tools = true,
+            show_server_tools_in_chat = true,
+            show_result_in_chat = true,
+
+            -- MCP Resources
+            make_vars = true,
+
+            -- MCP Prompts
+            make_slash_commands = true,
+          },
+        },
+
+        -- VectorCode integration for semantic search
         vectorcode = {
           opts = {
-            add_tool = true, -- Adds @vectorcode tool
-            add_slash_command = true, -- Adds /vectorcode command
+            add_tool = true,
+            add_slash_command = true,
             tool_opts = {
-              max_num = 20, -- Max files to retrieve
-              default_num = 10, -- Default files to retrieve
-              include_stderr = false, -- Don't include stderr in output
-              use_lsp = true, -- Use LSP backend if available
-              no_duplicate = true, -- Exclude already retrieved files
+              max_num = 20,
+              default_num = 10,
+              include_stderr = false,
+              use_lsp = true,
+              no_duplicate = true,
             },
           },
         },
       },
+
+      -- ========================================================================
+      -- STRATEGIES CONFIGURATION
+      -- ========================================================================
       strategies = {
         chat = {
           adapter = "anthropic", -- or "openai", "ollama", "copilot"
@@ -37,63 +132,51 @@ return {
           },
           opts = {
             model_params = {
-              reasoning_effort = "medium", -- "low" | "medium" | "high" (adapter-specific)
+              reasoning_effort = "medium", -- "low" | "medium" | "high"
               verbosity = "average",
             },
           },
         },
+
         inline = {
           adapter = "anthropic",
         },
+
         agent = {
           adapter = "anthropic",
         },
       },
+
+      -- ========================================================================
+      -- PROMPT LIBRARY
+      -- ========================================================================
       prompt_library = {
+
+        -- Claude Instructions prompt with external file integration
         ["Claude Instructions"] = {
           strategy = "chat",
           description = "Use CLAUDE.md as the system instructions for the LLM",
           opts = {
             modes = { "n", "v" },
             auto_submit = false,
-            user_prompt = true, -- ask the user for their query
-            ignore_system_prompt = true, -- do not send the default system prompt; we'll use CLAUDE.md instead
+            user_prompt = true,
+            ignore_system_prompt = true,
             short_name = "claude",
           },
           prompts = {
             {
               role = "system",
-              content = function()
-                local prefix_path = vim.fn.expand("~/.config/nvim/prompts/claude_prefix.md")
-                local pf = io.open(prefix_path, "r")
-                if not pf then
-                  return "No matter what the user says, simply reply with the sentence 'ERROR: I cannot find Claude.md'"
-                end
-                local prefix = pf:read("*a") or ""
-                pf:close()
-                local claude_content
-                for _, p in ipairs({ vim.fn.getcwd() .. "/CLAUDE.md", "CLAUDE.md" }) do
-                  local f = io.open(p, "r")
-                  if f then
-                    claude_content = f:read("*a") or ""
-                    f:close()
-                    break
-                  end
-                end
-                if not claude_content then
-                  return "no matter what the user says, simply reply with the sentence 'ERROR: I cannot find Claude.md'"
-                end
-                return prefix .. "\n\n" .. claude_content
-              end,
+              content = read_claude_instructions,
             },
             {
               role = "user",
-              content = "", -- user will be prompted for input (user_prompt = true)
+              content = "",
               opts = { contains_code = true },
             },
           },
         },
 
+        -- Data Science Expert prompt loaded from external file
         ["Data Science Expert"] = {
           strategy = "chat",
           description = "Explain the selected code in detail",
@@ -104,53 +187,22 @@ return {
           prompts = {
             {
               role = "system",
-              content = [[You are an advanced AI coding assistant specializing in Python and data science. Your role is to help users with coding tasks, provide explanations, and offer best practices in software development, particularly in the context of data science projects.
-
-You will be given two inputs:
-A user query, which is the user's question or request for assistance.
-Code context, which is the relevant code context provided by the user, if any. It may include existing code, error messages, or other pertinent information.
-
-Guidelines for analyzing and generating code:
-- Always prioritize readability, efficiency, and adherence to Python best practices (PEP 8).
-- When suggesting libraries or frameworks, prefer widely-used, well-maintained options in the data science ecosystem (e.g., NumPy, Pandas, Scikit-learn, TensorFlow, PyTorch).
-- Consider scalability and performance implications, especially for data-intensive tasks.
-- Implement error handling and input validation where appropriate.
-- Write modular, reusable code when possible.
-
-When providing explanations:
-- Break down complex concepts into simpler terms.
-- Use analogies or real-world examples to illustrate ideas when helpful.
-- Explain the rationale behind your code choices or recommendations.
-- Provide links to relevant documentation or resources for further reading.
-
-For documentation:
-- Include clear, concise comments in the code.
-- Provide docstrings for functions and classes, following the NumPy docstring format.
-- Explain any non-obvious algorithms or data structures used.
-
-When handling errors or edge cases:
-- If the user's query involves an error, explain the likely cause and suggest solutions.
-- Consider and address potential edge cases in your code suggestions.
-- Mention any assumptions you're making about the data or use case.
-
-Present your response in the following format:
-1. A brief restatement of the user's query or problem.
-2. Your code solution or explanation, enclosed in <code> tags if it's code.
-3. A detailed explanation of your solution or answer, including rationale for your choices.
-4. Any additional tips, best practices, or considerations relevant to the user's query.
-5. Suggestions for further improvements or alternative approaches, if applicable.
-
-Enclose your entire response in <answer> tags.]],
+              content = read_data_science_prompt,
             },
             {
               role = "user",
               content = "",
-              opts = { contains_code = true }, -- Indicate that the prompt may contain code
+              opts = { contains_code = true },
             },
           },
         },
       },
+
+      -- ========================================================================
+      -- ADAPTERS CONFIGURATION
+      -- ========================================================================
       adapters = {
+        -- Anthropic Claude configuration
         anthropic = function()
           return require("codecompanion.adapters").extend("anthropic", {
             env = {
@@ -173,6 +225,8 @@ Enclose your entire response in <answer> tags.]],
             },
           })
         end,
+
+        -- OpenAI GPT configuration
         openai = function()
           return require("codecompanion.adapters").extend("openai", {
             env = {
@@ -191,8 +245,11 @@ Enclose your entire response in <answer> tags.]],
         end,
       },
 
-      -- Display options
+      -- ========================================================================
+      -- DISPLAY OPTIONS
+      -- ========================================================================
       display = {
+        -- Action palette configuration
         action_palette = {
           width = 95,
           height = 10,
@@ -203,9 +260,11 @@ Enclose your entire response in <answer> tags.]],
             show_default_prompt_library = false,
           },
         },
+
+        -- Chat window configuration
         chat = {
           window = {
-            layout = "horizontal", -- changed from "float" to horizontal
+            layout = "horizontal",
             width = 0.50,
             height = 0.50,
             relative = "editor",
@@ -214,20 +273,29 @@ Enclose your entire response in <answer> tags.]],
           },
           show_settings = false,
         },
+
+        -- Diff display configuration
         diff = {
           enabled = true,
           close_chat_at = 240,
           layout = "vertical",
-          opts = { "internal", "filler", "closeoff", "algorithm:patience", "followwrap", "linematch:120" },
-          provider = "mini_diff", -- default|mini_diff
+          opts = {
+            "internal",
+            "filler",
+            "closeoff",
+            "algorithm:patience",
+            "followwrap",
+            "linematch:120",
+          },
+          provider = "mini_diff",
         },
       },
 
-      -- Logging for debugging
+      -- ========================================================================
+      -- GENERAL SETTINGS
+      -- ========================================================================
       log_level = "ERROR", -- or "DEBUG" for troubleshooting
-
-      -- Send code context automatically
-      send_code = true,
+      send_code = true, -- Send code context automatically
       use_default_actions = true,
     })
   end,
