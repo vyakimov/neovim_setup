@@ -103,8 +103,8 @@ return {
     dependencies = {
       "hkupty/iron.nvim", -- Explicitly list iron.nvim as a dependency
       "nvim-lua/plenary.nvim", -- Often a dependency for complex plugins
-      "echasnovski/mini.hipatterns", -- For cell highlighting (recommended)
-      -- "echasnovski/mini.ai",       -- Optional: if you want cell-based textobjects via mini.ai
+      "nvim-mini/mini.hipatterns", -- For cell highlighting (recommended)
+      -- "nvim-mini/mini.ai",       -- Optional: if you want cell-based textobjects via mini.ai
     },
     opts = { -- Using `opts` is a clean way to pass configuration to the plugin's `setup` function with lazy.nvim
       -- Default cell_markers = { python = "# %%" } is what we want.
@@ -157,7 +157,7 @@ return {
 
   -- Optional but Recommended: Cell Highlighting with mini.hipatterns
   {
-    "echasnovski/mini.hipatterns",
+    "nvim-mini/mini.hipatterns",
     event = "BufReadPre", -- Load early enough to highlight on file open
     dependencies = { "GCBallesteros/NotebookNavigator.nvim" }, -- Ensure NotebookNavigator is available
     opts = function()

@@ -1,5 +1,5 @@
 return {
-  "echasnovski/mini.diff",
+  "nvim-mini/mini.diff",
   lazy = true,
   enabled = true,
   version = false,

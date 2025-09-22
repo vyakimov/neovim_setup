@@ -76,7 +76,7 @@ return {
     "nvim-telescope/telescope.nvim", -- Optional: for history
     "stevearc/dressing.nvim", -- Optional: for input dialogs
     "Davidyz/VectorCode",
-    "echasnovski/mini.diff",
+    "nvim-mini/mini.diff",
   },
 
   config = function()
