@@ -210,10 +210,9 @@ return {
             },
             schema = {
               model = {
-                default = "claude-sonnet-4-20250514",
+                default = "claude-sonnet-4.5-20250929",
                 choices = {
                   "claude-opus-4-1-20250805",
-                  "claude-sonnet-4-20250514",
                 },
               },
               max_tokens = {
