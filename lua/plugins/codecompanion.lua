@@ -135,13 +135,13 @@ return {
       -- ========================================================================
       strategies = {
         chat = {
-          adapter = "anthropic", -- or "openai", "ollama", "copilot"
+          adapter = "openai", -- or "openai", "ollama", "copilot"
           tools = {
             opts = { wait_timeout = 300000 },
           },
           opts = {
             model_params = {
-              reasoning_effort = "medium", -- "low" | "medium" | "high"
+              reasoning_effort = "high", -- "low" | "medium" | "high"
               verbosity = "average",
             },
           },
@@ -245,7 +245,7 @@ return {
               model = {
                 default = "gpt-5-mini",
                 choices = {
-                  "gpt-5",
+                  "gpt-5.1",
                   "gpt-5-mini",
                 },
               },

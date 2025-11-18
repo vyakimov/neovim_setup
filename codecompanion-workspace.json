@@ -1,0 +1,41 @@
+{
+  "name": "LazyVim Neovim Config",
+  "version": "1.0.0",
+  "workspace_spec": "1.0",
+  "system_prompt": "You are assisting with a LazyVim-based Neovim configuration that uses Lua for all configuration files. The setup follows LazyVim's structure with custom plugins and configurations.\n\nArchitecture overview:\n- init.lua: Main entry point that bootstraps lazy.nvim and sets up basic LSP configuration (notably Pyright for Python).\n- lua/config/: Core configuration (options, keymaps, autocmds, lazy setup).\n- lua/plugins/: Individual plugin configurations, mostly one plugin per file, configured via opts or config, with lazy-loading where appropriate.\n- prompts/: Custom prompt templates for CodeCompanion integration.\n\nKey conventions:\n- Plugin management: lazy.nvim with performance optimizations and automatic plugin loading.\n- LSP: Custom Pyright setup; keybindings for LSP actions live near init.lua / core config.\n- CodeCompanion: Integrated via lua/plugins/codecompanion.lua with custom prompts and CLAUDE.md project context.\n- Keymaps: macOS-style movement and editing, custom map() helper with noremap = true and silent = true by default, system clipboard integration, Yanky for enhanced paste.\n- Theme: Tokyo Night Storm colorscheme.\n- Clipboard: Smart handling for macOS, containers, and tmux (including OSC52 fallbacks).\n\nWhen asked for help, prefer using existing patterns in this configuration (LazyVim plugin style, map() helper, smart clipboard, macOS-style keybindings). When adding new plugins or keymaps, follow the existing file structure and style. Keep changes minimal, focused, and consistent with the current architecture.",
+  "groups": [
+    {
+      "name": "Core Config",
+      "description": "Core Neovim options, keymaps, autocmds, and lazy.nvim setup for this LazyVim-based configuration.",
+      "base_dir": "${root}/lua/config",
+      "globs": [
+        "**/*.lua"
+      ]
+    },
+    {
+      "name": "Plugins",
+      "description": "Custom plugin configurations for this LazyVim setup. Each file typically configures a single plugin using opts or config and lazy-loading where appropriate.",
+      "base_dir": "${root}/lua/plugins",
+      "globs": [
+        "**/*.lua"
+      ]
+    },
+    {
+      "name": "Prompts",
+      "description": "Custom prompt templates used by CodeCompanion for this Neovim configuration.",
+      "base_dir": "${root}/prompts",
+      "globs": [
+        "**/*.md"
+      ]
+    },
+    {
+      "name": "Project Docs",
+      "description": "High-level project documentation and AI guidance files for this Neovim configuration.",
+      "base_dir": "${root}",
+      "files": [
+        "CLAUDE.md",
+        "README.md"
+      ]
+    }
+  ]
+}
