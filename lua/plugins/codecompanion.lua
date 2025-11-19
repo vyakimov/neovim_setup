@@ -1,4 +1,5 @@
--- Config for olimorris/codecompanion.nvim (adapted)
+-- Config for olimorris/codecompanion.nvim
+
 --
 -- External prompt files should be placed in:
 -- ~/.config/nvim/prompts/claude_prefix.md
@@ -211,11 +212,11 @@ return {
       -- ========================================================================
       -- ADAPTERS CONFIGURATION (HTTP + ACP)
       -- ========================================================================
-        adapters = {
-          --------------------------------------------------------------------------
-          -- HTTP adapters (direct API access: OpenAI + Anthropic)
-          --------------------------------------------------------------------------
-          http = {
+      adapters = {
+        --------------------------------------------------------------------------
+        -- HTTP adapters (direct API access: OpenAI + Anthropic)
+        --------------------------------------------------------------------------
+        http = {
           -- Anthropic Claude configuration (HTTP API)
           anthropic = function()
             return require("codecompanion.adapters").extend("anthropic", {
@@ -261,49 +262,49 @@ return {
               },
             })
           end,
-          },
-
-          --------------------------------------------------------------------------
-          -- ACP adapters (Agent Client Protocol: Claude Code, Codex, etc.)
-          --------------------------------------------------------------------------
-          acp = {
-            -- Claude Code via ACP
-            -- You must have Claude Code + the Zed ACP adapter installed.
-            -- Auth can be via ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN.
-            claude_code = function()
-              return require("codecompanion.adapters").extend("claude_code", {
-                -- If you already have the env vars set, you can omit this `env` block
-                -- and rely on the adapter’s defaults. Leaving an empty table keeps it explicit.
-                env = {
-                  -- Uncomment one of these if you want to hard-wire it instead of using defaults:
-                  -- ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY",
-                  -- CLAUDE_CODE_OAUTH_TOKEN = "my-oauth-token",
-                },
-              })
-            end,
-
-            -- OpenAI Codex via ACP (using Zed's Codex ACP bridge)
-            codex = function()
-              return require("codecompanion.adapters").extend("codex", {
-                -- Only needed if you *don’t* want the default auth method:
-                defaults = {
-                  auth_method = "openai-api-key", -- or "codex-api-key" | "chatgpt"
-                },
-                -- Optional: only if you want to override the environment
-                env = {
-                  OPENAI_API_KEY = vim.env.OPENAI_API_KEY,
-                },
-                -- Optional: override model defaults if you like
-                schema = {
-                  model = {
-                    default = "gpt-5.1",
-                    choices = { "gpt-5.1", "gpt-5-mini" },
-                  },
-                },
-              })
-            end,
-          },
         },
+
+        --------------------------------------------------------------------------
+        -- ACP adapters (Agent Client Protocol: Claude Code, Codex, etc.)
+        --------------------------------------------------------------------------
+        acp = {
+          -- Claude Code via ACP
+          -- You must have Claude Code + the Zed ACP adapter installed.
+          -- Auth can be via ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN.
+          claude_code = function()
+            return require("codecompanion.adapters").extend("claude_code", {
+              -- If you already have the env vars set, you can omit this `env` block
+              -- and rely on the adapter’s defaults. Leaving an empty table keeps it explicit.
+              env = {
+                -- Uncomment one of these if you want to hard-wire it instead of using defaults:
+                -- ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY",
+                -- CLAUDE_CODE_OAUTH_TOKEN = "my-oauth-token",
+              },
+            })
+          end,
+
+          -- OpenAI Codex via ACP (using Zed's Codex ACP bridge)
+          codex = function()
+            return require("codecompanion.adapters").extend("codex", {
+              -- Only needed if you *don’t* want the default auth method:
+              defaults = {
+                auth_method = "openai-api-key", -- or "codex-api-key" | "chatgpt"
+              },
+              -- Optional: only if you want to override the environment
+              env = {
+                OPENAI_API_KEY = vim.env.OPENAI_API_KEY,
+              },
+              -- Optional: override model defaults if you like
+              schema = {
+                model = {
+                  default = "gpt-5.1",
+                  choices = { "gpt-5.1", "gpt-5-mini" },
+                },
+              },
+            })
+          end,
+        },
+      },
 
       -- ========================================================================
       -- DISPLAY OPTIONS
@@ -334,27 +335,30 @@ return {
           show_settings = false,
         },
 
-        -- Diff display configuration (mini.diff)
+        -- Diff display configuration (inline + superdiff)
         diff = {
           enabled = true,
-          close_chat_at = 240,
-          layout = "vertical",
-          opts = {
-            "internal",
-            "filler",
-            "closeoff",
-            "algorithm:patience",
-            "followwrap",
-            "linematch:120",
+          provider = "inline",
+          provider_opts = {
+            inline = {
+              layout = "vertical",
+              opts = {
+                context_lines = 3,
+                show_dim = true,
+                dim = 25,
+                full_width_removed = true,
+                show_keymap_hints = true,
+                show_removed = true,
+              },
+            },
           },
-          provider = "mini_diff",
         },
       },
 
       -- ========================================================================
       -- GENERAL SETTINGS
       -- ========================================================================
-      log_level = "DEBUG", -- or "DEBUG" for troubleshooting
+      log_level = "ERROR", -- or "DEBUG" for troubleshooting
       send_code = true, -- Send code context automatically
       use_default_actions = true,
     })
