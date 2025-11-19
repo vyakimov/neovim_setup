@@ -211,11 +211,11 @@ return {
       -- ========================================================================
       -- ADAPTERS CONFIGURATION (HTTP + ACP)
       -- ========================================================================
-      adapters = {
-        --------------------------------------------------------------------------
-        -- HTTP adapters (direct API access: OpenAI + Anthropic)
-        --------------------------------------------------------------------------
-        http = {
+        adapters = {
+          --------------------------------------------------------------------------
+          -- HTTP adapters (direct API access: OpenAI + Anthropic)
+          --------------------------------------------------------------------------
+          http = {
           -- Anthropic Claude configuration (HTTP API)
           anthropic = function()
             return require("codecompanion.adapters").extend("anthropic", {
@@ -261,94 +261,49 @@ return {
               },
             })
           end,
-        },
+          },
 
-        --------------------------------------------------------------------------
-        -- ACP adapters (Agent Client Protocol: Claude Code, Codex, etc.)
-        --------------------------------------------------------------------------
-        acp = {
-          -- Claude Code via ACP
-          -- You must have Claude Code + the Zed ACP adapter installed.
-          -- Auth can be via ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN.
-          claude_code = function()
-            return require("codecompanion.adapters").extend("claude_code", {
-              -- If you already have the env vars set, you can omit this `env` block
-              -- and rely on the adapter’s defaults. Leaving an empty table keeps it explicit.
-              env = {
-                -- Uncomment one of these if you want to hard-wire it instead of using defaults:
-                -- ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY",
-                -- CLAUDE_CODE_OAUTH_TOKEN = "my-oauth-token",
-              },
-            })
-          end,
-
-          -- OpenAI Codex via ACP (using Zed's Codex ACP bridge)
-          codex = function()
-            local helpers = require("codecompanion.adapters.acp.helpers")
-            return require("codecompanion.adapters.acp").new({
-              name = "codex",
-              formatted_name = "Codex",
-              type = "acp",
-              roles = {
-                llm = "assistant",
-                user = "user",
-              },
-              opts = {
-                vision = true,
-              },
-              commands = {
-                default = {
-                  "npx",
-                  "--silent",
-                  "--yes",
-                  "@zed-industries/codex-acp",
+          --------------------------------------------------------------------------
+          -- ACP adapters (Agent Client Protocol: Claude Code, Codex, etc.)
+          --------------------------------------------------------------------------
+          acp = {
+            -- Claude Code via ACP
+            -- You must have Claude Code + the Zed ACP adapter installed.
+            -- Auth can be via ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN.
+            claude_code = function()
+              return require("codecompanion.adapters").extend("claude_code", {
+                -- If you already have the env vars set, you can omit this `env` block
+                -- and rely on the adapter’s defaults. Leaving an empty table keeps it explicit.
+                env = {
+                  -- Uncomment one of these if you want to hard-wire it instead of using defaults:
+                  -- ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY",
+                  -- CLAUDE_CODE_OAUTH_TOKEN = "my-oauth-token",
                 },
-              },
-              defaults = {
-                auth_method = "openai-api-key", -- Try lowercase with hyphens
-                mcpServers = {},
-                timeout = 20000, -- 20 seconds
-              },
-              env = {
-                OPENAI_API_KEY = vim.env.OPENAI_API_KEY,
-              },
-              schema = {
-                model = {
-                  default = "gpt-5.1",
-                  choices = {
-                    "gpt-5.1",
+              })
+            end,
+
+            -- OpenAI Codex via ACP (using Zed's Codex ACP bridge)
+            codex = function()
+              return require("codecompanion.adapters").extend("codex", {
+                -- Only needed if you *don’t* want the default auth method:
+                defaults = {
+                  auth_method = "openai-api-key", -- or "codex-api-key" | "chatgpt"
+                },
+                -- Optional: only if you want to override the environment
+                env = {
+                  OPENAI_API_KEY = vim.env.OPENAI_API_KEY,
+                },
+                -- Optional: override model defaults if you like
+                schema = {
+                  model = {
+                    default = "gpt-5.1",
+                    choices = { "gpt-5.1", "gpt-5-mini" },
                   },
                 },
-                max_tokens = {
-                  default = 16384,
-                },
-                temperature = {
-                  default = 1.0,
-                },
-              },
-              parameters = {
-                protocolVersion = 1,
-                clientCapabilities = {
-                  fs = { readTextFile = true, writeTextFile = true },
-                },
-                clientInfo = {
-                  name = "CodeCompanion.nvim",
-                  version = "1.0.0",
-                },
-              },
-              handlers = {
-                setup = function(self)
-                  return true
-                end,
-                form_messages = function(self, messages, capabilities)
-                  return helpers.form_messages(self, messages, capabilities)
-                end,
-                on_exit = function(self, code) end,
-              },
-            })
-          end,
+              })
+            end,
+          },
         },
-      },
 
       -- ========================================================================
       -- DISPLAY OPTIONS
