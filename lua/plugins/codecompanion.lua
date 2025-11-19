@@ -93,6 +93,7 @@ return {
           },
         },
       },
+
       -- ========================================================================
       -- EXTENSIONS CONFIGURATION
       -- ========================================================================
@@ -135,7 +136,7 @@ return {
       -- ========================================================================
       strategies = {
         chat = {
-          adapter = "openai", -- or "openai", "ollama", "copilot"
+          adapter = "openai", -- now backed by adapters.http.openai
           tools = {
             opts = { wait_timeout = 300000 },
           },
@@ -148,11 +149,11 @@ return {
         },
 
         inline = {
-          adapter = "anthropic",
+          adapter = "anthropic", -- HTTP Anthropic adapter
         },
 
         agent = {
-          adapter = "anthropic",
+          adapter = "acp.codex", -- you can change this to "acp.claude_code" to use Claude Code via ACP
         },
       },
 
@@ -208,50 +209,145 @@ return {
       },
 
       -- ========================================================================
-      -- ADAPTERS CONFIGURATION
+      -- ADAPTERS CONFIGURATION (HTTP + ACP)
       -- ========================================================================
       adapters = {
-        -- Anthropic Claude configuration
-        anthropic = function()
-          return require("codecompanion.adapters").extend("anthropic", {
-            env = {
-              api_key = vim.env.ANTHROPIC_API_KEY,
-            },
-            schema = {
-              model = {
-                default = "claude-sonnet-4-5-20250929",
-                choices = {
-                  "claude-sonnet-4-5-20250929",
-                  "claude-opus-4-1-20250805",
+        --------------------------------------------------------------------------
+        -- HTTP adapters (direct API access: OpenAI + Anthropic)
+        --------------------------------------------------------------------------
+        http = {
+          -- Anthropic Claude configuration (HTTP API)
+          anthropic = function()
+            return require("codecompanion.adapters").extend("anthropic", {
+              env = {
+                -- Uses ANTHROPIC_API_KEY from your environment
+                api_key = vim.env.ANTHROPIC_API_KEY,
+              },
+              schema = {
+                model = {
+                  -- Keep your existing versioned Sonnet as default
+                  default = "claude-sonnet-4-5-20250929",
+                  choices = {
+                    "claude-sonnet-4-5-20250929",
+                    "claude-opus-4-1-20250805",
+                  },
+                },
+                max_tokens = {
+                  default = 32000,
+                },
+                temperature = {
+                  default = 0.1,
                 },
               },
-              max_tokens = {
-                default = 32000,
-              },
-              temperature = {
-                default = 0.1,
-              },
-            },
-          })
-        end,
+            })
+          end,
 
-        -- OpenAI GPT configuration
-        openai = function()
-          return require("codecompanion.adapters").extend("openai", {
-            env = {
-              api_key = vim.env.OPENAI_API_KEY,
-            },
-            schema = {
-              model = {
-                default = "gpt-5-mini",
-                choices = {
-                  "gpt-5.1",
-                  "gpt-5-mini",
+          -- OpenAI GPT configuration (HTTP API)
+          openai = function()
+            return require("codecompanion.adapters").extend("openai", {
+              env = {
+                -- Uses OPENAI_API_KEY from your environment
+                api_key = vim.env.OPENAI_API_KEY,
+              },
+              schema = {
+                model = {
+                  -- Switched default to gpt-5.1 as requested
+                  default = "gpt-5.1",
+                  choices = {
+                    "gpt-5.1",
+                    "gpt-5-mini",
+                  },
                 },
               },
-            },
-          })
-        end,
+            })
+          end,
+        },
+
+        --------------------------------------------------------------------------
+        -- ACP adapters (Agent Client Protocol: Claude Code, Codex, etc.)
+        --------------------------------------------------------------------------
+        acp = {
+          -- Claude Code via ACP
+          -- You must have Claude Code + the Zed ACP adapter installed.
+          -- Auth can be via ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN.
+          claude_code = function()
+            return require("codecompanion.adapters").extend("claude_code", {
+              -- If you already have the env vars set, you can omit this `env` block
+              -- and rely on the adapter’s defaults. Leaving an empty table keeps it explicit.
+              env = {
+                -- Uncomment one of these if you want to hard-wire it instead of using defaults:
+                -- ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY",
+                -- CLAUDE_CODE_OAUTH_TOKEN = "my-oauth-token",
+              },
+            })
+          end,
+
+          -- OpenAI Codex via ACP (using Zed's Codex ACP bridge)
+          codex = function()
+            local helpers = require("codecompanion.adapters.acp.helpers")
+            return require("codecompanion.adapters.acp").new({
+              name = "codex",
+              formatted_name = "Codex",
+              type = "acp",
+              roles = {
+                llm = "assistant",
+                user = "user",
+              },
+              opts = {
+                vision = true,
+              },
+              commands = {
+                default = {
+                  "npx",
+                  "--silent",
+                  "--yes",
+                  "@zed-industries/codex-acp",
+                },
+              },
+              defaults = {
+                auth_method = "openai-api-key", -- Try lowercase with hyphens
+                mcpServers = {},
+                timeout = 20000, -- 20 seconds
+              },
+              env = {
+                OPENAI_API_KEY = vim.env.OPENAI_API_KEY,
+              },
+              schema = {
+                model = {
+                  default = "gpt-5.1",
+                  choices = {
+                    "gpt-5.1",
+                  },
+                },
+                max_tokens = {
+                  default = 16384,
+                },
+                temperature = {
+                  default = 1.0,
+                },
+              },
+              parameters = {
+                protocolVersion = 1,
+                clientCapabilities = {
+                  fs = { readTextFile = true, writeTextFile = true },
+                },
+                clientInfo = {
+                  name = "CodeCompanion.nvim",
+                  version = "1.0.0",
+                },
+              },
+              handlers = {
+                setup = function(self)
+                  return true
+                end,
+                form_messages = function(self, messages, capabilities)
+                  return helpers.form_messages(self, messages, capabilities)
+                end,
+                on_exit = function(self, code) end,
+              },
+            })
+          end,
+        },
       },
 
       -- ========================================================================
@@ -283,7 +379,7 @@ return {
           show_settings = false,
         },
 
-        -- Diff display configuration
+        -- Diff display configuration (mini.diff)
         diff = {
           enabled = true,
           close_chat_at = 240,
@@ -303,7 +399,7 @@ return {
       -- ========================================================================
       -- GENERAL SETTINGS
       -- ========================================================================
-      log_level = "ERROR", -- or "DEBUG" for troubleshooting
+      log_level = "DEBUG", -- or "DEBUG" for troubleshooting
       send_code = true, -- Send code context automatically
       use_default_actions = true,
     })

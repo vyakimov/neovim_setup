@@ -10,14 +10,19 @@ This is a LazyVim-based Neovim configuration that uses Lua for all configuration
 
 - **init.lua**: Main entry point that bootstraps lazy.nvim and sets up basic LSP configuration
 - **lua/config/**: Core configuration files (options, keymaps, autocmds, lazy setup)
-- **lua/plugins/**: Individual plugin configurations (18+ custom plugin files)
+- **lua/plugins/**: Individual plugin configurations (16 custom plugin files)
 - **prompts/**: Custom prompt templates for CodeCompanion integration
 
 ### Key Components
 
 1. **Plugin Management**: Uses lazy.nvim with automatic plugin loading
 2. **LSP Setup**: Pyright LSP with custom keybindings in init.lua
-3. **CodeCompanion Integration**: AI coding assistant with custom prompts and Claude.md integration
+3. **CodeCompanion Integration**: AI coding assistant with:
+   - Custom prompts and CLAUDE.md integration
+   - Memory support for persistent context across sessions
+   - MCP Hub integration for additional tools and resources
+   - VectorCode semantic search integration
+   - Both HTTP and ACP (Agent Client Protocol) adapters
 4. **Custom Keymaps**: Extensive macOS-style keybindings with system clipboard integration
 5. **Theme**: Tokyo Night Storm colorscheme
 
@@ -68,10 +73,16 @@ The configuration uses a custom `map()` function defined in `lua/config/keymaps.
 - `lua/config/lazy.lua` - Plugin manager configuration with performance optimizations
 
 ### Key Plugins
-- `lua/plugins/codecompanion.lua` - AI assistant with custom prompt integration
+- `lua/plugins/codecompanion.lua` - AI assistant with custom prompt integration, memory, MCP Hub, and VectorCode
+- `lua/plugins/mcphub.lua` - MCP Hub integration for additional tools and resources
+- `lua/plugins/vectorcode.lua` - Semantic code search integration
+- `lua/plugins/mini.diff.lua` - Enhanced diff display for CodeCompanion
 - `lua/plugins/repl.lua` - REPL functionality
 - `lua/plugins/telescope.lua` - Fuzzy finder configuration
 - `lua/plugins/copilot-custom.lua` - GitHub Copilot integration
+- `lua/plugins/copilot-lsp.lua` - Copilot LSP integration
+- `lua/plugins/bookmarks.lua` - Bookmark management
+- `lua/plugins/yanky.lua` - Enhanced yank/paste operations
 
 ### Prompt Templates
 - `prompts/claude_prefix.md` - Base Claude Code instructions
@@ -80,11 +91,29 @@ The configuration uses a custom `map()` function defined in `lua/config/keymaps.
 ## Development Notes
 
 ### CodeCompanion Integration
-The CodeCompanion plugin is configured to automatically read:
+The CodeCompanion plugin is configured with advanced features:
+
+**Prompt Loading**:
 1. `~/.config/nvim/prompts/claude_prefix.md` - Base instructions
 2. `CLAUDE.md` from current working directory - Project-specific context
 
-This allows for context-aware AI assistance that understands both the Neovim environment and specific project requirements.
+**AI Models Available**:
+- **Chat strategy**: OpenAI GPT-5.1 (default), GPT-5 Mini
+- **Inline strategy**: Anthropic Claude Sonnet 4.5 (2025-09-29), Claude Opus 4.1
+- **Agent strategy**: Claude Code via ACP (Agent Client Protocol)
+
+**Memory System**:
+- Persistent context across chat sessions
+- Automatically enabled for chat interactions
+
+**Extensions**:
+- **MCP Hub**: Provides additional tools, resources, and slash commands from MCP servers
+- **VectorCode**: Semantic code search using embeddings (default 10 results, max 20)
+
+**Adapters**:
+- **HTTP adapters**: Direct API access to OpenAI and Anthropic
+- **ACP adapters**: Agent Client Protocol support for Claude Code and Codex
+- Authentication via environment variables (ANTHROPIC_API_KEY, OPENAI_API_KEY, CLAUDE_CODE_OAUTH_TOKEN)
 
 ### Custom Keybinding Philosophy
 - macOS-style text navigation (Cmd+Arrow, Option+Arrow)
