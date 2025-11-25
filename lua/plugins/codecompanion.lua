@@ -229,6 +229,7 @@ return {
                   -- Keep your existing versioned Sonnet as default
                   default = "claude-sonnet-4-5-20250929",
                   choices = {
+                    "claude-opus-4-5-20251101",
                     "claude-sonnet-4-5-20250929",
                     "claude-opus-4-1-20250805",
                   },
@@ -252,7 +253,6 @@ return {
               },
               schema = {
                 model = {
-                  -- Switched default to gpt-5.1 as requested
                   default = "gpt-5.1",
                   choices = {
                     "gpt-5.1",
@@ -277,7 +277,7 @@ return {
               -- and rely on the adapter’s defaults. Leaving an empty table keeps it explicit.
               env = {
                 -- Uncomment one of these if you want to hard-wire it instead of using defaults:
-                -- ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY",
+                ANTHROPIC_API_KEY = vim.env.ANTHROPIC_API_KEY,
                 -- CLAUDE_CODE_OAUTH_TOKEN = "my-oauth-token",
               },
             })
