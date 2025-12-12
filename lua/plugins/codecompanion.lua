@@ -253,7 +253,7 @@ return {
               },
               schema = {
                 model = {
-                  default = "gpt-5.1",
+                  default = "gpt-5.2",
                   choices = {
                     "gpt-5.1",
                     "gpt-5-mini",
@@ -297,7 +297,7 @@ return {
               -- Optional: override model defaults if you like
               schema = {
                 model = {
-                  default = "gpt-5.1",
+                  default = "gpt-5.2",
                   choices = { "gpt-5.1", "gpt-5-mini" },
                 },
               },
