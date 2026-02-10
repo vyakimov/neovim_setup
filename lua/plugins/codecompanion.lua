@@ -76,7 +76,6 @@ return {
     "hrsh7th/nvim-cmp", -- Optional: for completion
     "nvim-telescope/telescope.nvim", -- Optional: for history
     "stevearc/dressing.nvim", -- Optional: for input dialogs
-    "Davidyz/VectorCode",
     "nvim-mini/mini.diff",
   },
 
@@ -115,29 +114,14 @@ return {
             make_slash_commands = true,
           },
         },
-
-        -- VectorCode integration for semantic search
-        vectorcode = {
-          opts = {
-            add_tool = true,
-            add_slash_command = true,
-            tool_opts = {
-              max_num = 20,
-              default_num = 10,
-              include_stderr = false,
-              use_lsp = true,
-              no_duplicate = true,
-            },
-          },
-        },
       },
 
       -- ========================================================================
-      -- STRATEGIES CONFIGURATION
+      -- INTERACTIONS CONFIGURATION (v18.4.0+)
       -- ========================================================================
-      strategies = {
+      interactions = {
         chat = {
-          adapter = "openai", -- now backed by adapters.http.openai
+          adapter = "openai", -- or "acp.codex" for ACP
           tools = {
             opts = { wait_timeout = 300000 },
           },
@@ -154,7 +138,7 @@ return {
         },
 
         agent = {
-          adapter = "acp.codex", -- you can change this to "acp.claude_code" to use Claude Code via ACP
+          adapter = "acp.codex", -- or "acp.claude_code" to use Claude Code via ACP
         },
       },
 
@@ -273,10 +257,11 @@ return {
           -- Auth can be via ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN.
           claude_code = function()
             return require("codecompanion.adapters").extend("claude_code", {
-              -- If you already have the env vars set, you can omit this `env` block
-              -- and rely on the adapter’s defaults. Leaving an empty table keeps it explicit.
+              defaults = {
+                -- model = "opus", -- optional: set default model ("opus" or "sonnet")
+              },
               env = {
-                -- Uncomment one of these if you want to hard-wire it instead of using defaults:
+                -- If you already have the env vars set, you can omit this `env` block
                 ANTHROPIC_API_KEY = vim.env.ANTHROPIC_API_KEY,
                 -- CLAUDE_CODE_OAUTH_TOKEN = "my-oauth-token",
               },
@@ -286,19 +271,17 @@ return {
           -- OpenAI Codex via ACP (using Zed's Codex ACP bridge)
           codex = function()
             return require("codecompanion.adapters").extend("codex", {
-              -- Only needed if you *don’t* want the default auth method:
               defaults = {
                 auth_method = "openai-api-key", -- or "codex-api-key" | "chatgpt"
+                model = "gpt-5.2-pro", -- set default model here
               },
-              -- Optional: only if you want to override the environment
               env = {
                 OPENAI_API_KEY = vim.env.OPENAI_API_KEY,
               },
-              -- Optional: override model defaults if you like
               schema = {
                 model = {
-                  default = "gpt-5.2",
-                  choices = { "gpt-5.1", "gpt-5-mini" },
+                  default = "gpt-5.2-pro",
+                  choices = { "gpt-5.2", "gpt-5.1", "gpt-5-mini" },
                 },
               },
             })
