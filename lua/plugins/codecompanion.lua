@@ -121,7 +121,7 @@ return {
       -- ========================================================================
       interactions = {
         chat = {
-          adapter = "openai", -- or "acp.codex" for ACP
+          adapter = "copilot", -- GitHub Copilot (default)
           tools = {
             opts = { wait_timeout = 300000 },
           },
@@ -242,6 +242,17 @@ return {
                     "gpt-5.1",
                     "gpt-5-mini",
                   },
+                },
+              },
+            })
+          end,
+
+          -- GitHub Copilot configuration
+          copilot = function()
+            return require("codecompanion.adapters").extend("copilot", {
+              schema = {
+                model = {
+                  default = "claude-sonnet-4.5",
                 },
               },
             })
