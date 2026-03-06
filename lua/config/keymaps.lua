@@ -30,6 +30,13 @@ map("i", "<M-BS>", "<C-W>", { desc = "Delete word backward" })
 map("i", "<M-Del>", "<C-W>", { desc = "Delete word backward" })
 
 -- ──────────────────────────────────────────────
+-- Window navigation (works with tmux smart panes)
+-- ──────────────────────────────────────────────
+map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
+map("n", "<C-j>", "<C-w>j", { desc = "Move to lower window" })
+map("n", "<C-k>", "<C-w>k", { desc = "Move to upper window" })
+map("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
+-- ──────────────────────────────────────────────
 -- Clipboard (system register)
 -- ──────────────────────────────────────────────
 map({ "n", "v" }, "<leader>y", sys .. "y", { desc = "Yank to system clipboard" })
