@@ -95,28 +95,6 @@ return {
       },
 
       -- ========================================================================
-      -- EXTENSIONS CONFIGURATION
-      -- ========================================================================
-      extensions = {
-        -- MCP Hub integration
-        mcphub = {
-          callback = "mcphub.extensions.codecompanion",
-          opts = {
-            -- MCP Tools
-            make_tools = true,
-            show_server_tools_in_chat = true,
-            show_result_in_chat = true,
-
-            -- MCP Resources
-            make_vars = true,
-
-            -- MCP Prompts
-            make_slash_commands = true,
-          },
-        },
-      },
-
-      -- ========================================================================
       -- INTERACTIONS CONFIGURATION (v18.4.0+)
       -- ========================================================================
       interactions = {
