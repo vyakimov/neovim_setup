@@ -73,10 +73,10 @@ The configuration uses a custom `map()` function defined in `lua/config/keymaps.
 - `lua/config/lazy.lua` - Plugin manager configuration with performance optimizations
 
 ### Key Plugins
-- `lua/plugins/codecompanion.lua` - AI assistant with custom prompt integration, memory, MCP Hub, and VectorCode
+- `lua/plugins/codecompanion.lua` - AI assistant with custom prompt integration, rules, and VectorCode
 - `lua/plugins/mcphub.lua` - MCP Hub integration for additional tools and resources
 - `lua/plugins/vectorcode.lua` - Semantic code search integration
-- `lua/plugins/mini.diff.lua` - Enhanced diff display for CodeCompanion
+- `lua/plugins/mini.diff.lua` - Git diff display (sign column + overlay)
 - `lua/plugins/repl.lua` - REPL functionality
 - `lua/plugins/telescope.lua` - Fuzzy finder configuration
 - `lua/plugins/copilot-custom.lua` - GitHub Copilot integration
@@ -98,11 +98,11 @@ The CodeCompanion plugin is configured with advanced features:
 2. `CLAUDE.md` from current working directory - Project-specific context
 
 **AI Models Available**:
-- **Chat strategy**: OpenAI GPT-5.1 (default), GPT-5 Mini
-- **Inline strategy**: Anthropic Claude Sonnet 4.5 (2025-09-29), Claude Opus 4.1
-- **Agent strategy**: Claude Code via ACP (Agent Client Protocol)
+- **Chat interaction**: GitHub Copilot (Claude Sonnet 4.5 default)
+- **Inline interaction**: Anthropic Claude Sonnet 4.5 (2025-09-29)
+- **Agent interaction**: OpenAI Codex via ACP (Agent Client Protocol)
 
-**Memory System**:
+**Rules System** (formerly Memory):
 - Persistent context across chat sessions
 - Automatically enabled for chat interactions
 

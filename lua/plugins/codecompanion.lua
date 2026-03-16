@@ -76,17 +76,30 @@ return {
     "hrsh7th/nvim-cmp", -- Optional: for completion
     "nvim-telescope/telescope.nvim", -- Optional: for history
     "stevearc/dressing.nvim", -- Optional: for input dialogs
-    "nvim-mini/mini.diff",
   },
 
   config = function()
     require("plugins.codecompanion.spinner"):init()
 
     require("codecompanion").setup({
+      -- ========================================================================
+      -- MCP SERVERS (native v19 support, no mcphub needed)
+      -- ========================================================================
+      mcp = {
+        servers = {
+          ["tavily-mcp"] = {
+            cmd = { "npx", "-y", "tavily-mcp@latest" },
+            env = {
+              TAVILY_API_KEY = vim.env.TAVILY_API_KEY,
+            },
+          },
+        },
+      },
+
       --- =========================================================================
-      --- MEMORY CONFIGURATION
+      --- RULES CONFIGURATION (formerly memory, renamed in v18)
       --- =========================================================================
-      memory = {
+      rules = {
         opts = {
           chat = {
             enabled = true,
@@ -127,14 +140,14 @@ return {
 
         -- Claude Instructions prompt with external file integration
         ["Claude Instructions"] = {
-          strategy = "chat",
+          interaction = "chat",
           description = "Use CLAUDE.md as the system instructions for the LLM",
           opts = {
             modes = { "n", "v" },
             auto_submit = false,
             user_prompt = true,
             ignore_system_prompt = true,
-            short_name = "claude",
+            alias = "claude",
           },
           prompts = {
             {
@@ -151,7 +164,7 @@ return {
 
         -- Data Science Expert prompt loaded from external file
         ["Data Science Expert"] = {
-          strategy = "chat",
+          interaction = "chat",
           description = "Explain the selected code in detail",
           opts = {
             modes = { "n", "v" },
@@ -189,7 +202,7 @@ return {
               schema = {
                 model = {
                   -- Keep your existing versioned Sonnet as default
-                  default = "claude-sonnet-4-5-20250929",
+                  default = "claude-opus-4-6",
                   choices = {
                     "claude-opus-4-6",
                     "claude-sonnet-4-6",
@@ -229,7 +242,7 @@ return {
             return require("codecompanion.adapters").extend("copilot", {
               schema = {
                 model = {
-                  default = "claude-sonnet-4.5",
+                  default = "claude-opus-4.6",
                 },
               },
             })
@@ -288,8 +301,8 @@ return {
           prompt = "Prompt ",
           provider = "telescope",
           opts = {
-            show_default_actions = false,
-            show_default_prompt_library = false,
+            show_preset_actions = false,
+            show_preset_prompts = false,
           },
         },
 
@@ -306,23 +319,9 @@ return {
           show_settings = false,
         },
 
-        -- Diff display configuration (inline + superdiff)
+        -- Diff display configuration (v19: built-in only, no more mini.diff/superdiff)
         diff = {
           enabled = true,
-          provider = "inline",
-          provider_opts = {
-            inline = {
-              layout = "vertical",
-              opts = {
-                context_lines = 3,
-                show_dim = true,
-                dim = 25,
-                full_width_removed = true,
-                show_keymap_hints = true,
-                show_removed = true,
-              },
-            },
-          },
         },
       },
 
